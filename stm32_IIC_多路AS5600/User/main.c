@@ -17,6 +17,77 @@ extern int IIC_index;
   */
  void deal_with_pluse(void);
  void input_io_init(void);
+//int main(void) 
+//{
+//	SystemClock_Config();
+//	MX_USARTx_Init();
+
+//	HAL_UART_Receive_IT(&husartx,&aRxBuffer,1);
+//	dwt_init();
+//	float angle_val[IIC_NUM];
+//	AS5600_Init();
+//	while(1)
+//	{   	
+//		
+//		IIC_index++;
+//		if(IIC_index>IIC_NUM-1)
+//		{
+//			IIC_index=0;
+//		}
+//		angle_val[IIC_index]=Get_Angle();
+//		
+//		printf("ID %d angle_val = %.3f\r\n",IIC_index,angle_val[IIC_index]);
+//		
+//		delay_ms(50);	
+
+//	}
+//} 
+
+
+/************************************************************
+Function: void ZeroPositionProgram(void)
+Description: MT6701Zero Program
+Author: Joe
+Version:V0.1
+Input: none
+Output: none
+Return: none
+History: 
+1.Joe 2020.5.27 build this moudle
+2.<author> <time> <version > <desc>
+***********************************************************/	
+ uint8_t data_32 = 0x00;
+ uint8_t data_33 = 0x00;
+ uint8_t data_03 = 0x00;
+ uint8_t data_04 = 0x00;	
+ uint8_t temp = 0x00;
+	
+ void ZeroPositionProgram(void)
+ {   
+	 //readout zeroposition register
+     data_32=MT681X_Read(0x32);
+	 data_33=MT681X_Read(0x33);    
+	 //clear zeroposition register but high 4 bits of 0x32
+	 MT681X_Write(0x32,0x00|(data_32&0xF0));
+	 MT681X_Write(0x33,0x00);
+	 
+	 //readout angle register
+     data_03=MT681X_Read(0x03);
+	 data_04=MT681X_Read(0x04);  
+	 
+	 //wirte current angle to zero position register
+	 temp = (data_03>>4)|(data_32&0xF0);
+	 MT681X_Write(0x32,temp);
+	 temp = ((data_03&0x0F)<<4)|(data_04>>4);
+	 MT681X_Write(0x33,temp);	
+	 //write to eeprom
+	 MT681X_Write(0x09,0xB3);
+	 MT681X_Write(0x0A,0x05);
+	 
+ }
+uint16_t datatemp[5]={5,6,7,8,9};
+uint16_t Angle = 0;
+
 int main(void) 
 {
 	SystemClock_Config();
@@ -25,7 +96,7 @@ int main(void)
 	HAL_UART_Receive_IT(&husartx,&aRxBuffer,1);
 	dwt_init();
 	float angle_val[IIC_NUM];
-	AS5600_Init();
+	MT681X_Init();
 	while(1)
 	{   	
 		
@@ -34,7 +105,13 @@ int main(void)
 		{
 			IIC_index=0;
 		}
-		angle_val[IIC_index]=Get_Angle();
+		
+		datatemp[0]=MT681X_Read(0x03);
+		datatemp[1]=MT681X_Read(0x04);
+		Angle = (((datatemp[0]&0x00ff)<<8)|(datatemp[1]&0x00fc))>>2;;
+		angle_val[IIC_index]= Angle;
+		
+//		angle_val[IIC_index]=Get_Angle_MT();
 		
 		printf("ID %d angle_val = %.3f\r\n",IIC_index,angle_val[IIC_index]);
 		

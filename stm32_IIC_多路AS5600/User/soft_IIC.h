@@ -8,44 +8,44 @@
 /******************************************************/
 //IIC 引脚
 //第一组
-#define SCL_PIN_0                  GPIO_PIN_4
+#define SCL_PIN_0                  GPIO_PIN_0
 #define SCL_GPIO_PORT_0            GPIOE                   
 #define SCL_GPIO_CLK_ENABLE_0()    __GPIOE_CLK_ENABLE()
 
-#define SDA_PIN_0                  GPIO_PIN_2
+#define SDA_PIN_0                  GPIO_PIN_1
 #define SDA_GPIO_PORT_0            GPIOE                   
 #define SDA_GPIO_CLK_ENABLE_0()    __GPIOE_CLK_ENABLE()
 
 //第二组
-#define SCL_PIN_1                  GPIO_PIN_5
+#define SCL_PIN_1                  GPIO_PIN_3
 #define SCL_GPIO_PORT_1            GPIOE                   
 #define SCL_GPIO_CLK_ENABLE_1()    __GPIOE_CLK_ENABLE()
 
-#define SDA_PIN_1                  GPIO_PIN_3
+#define SDA_PIN_1                  GPIO_PIN_2
 #define SDA_GPIO_PORT_1            GPIOE                   
 #define SDA_GPIO_CLK_ENABLE_1()    __GPIOE_CLK_ENABLE()
 
 //第三组
-#define SCL_PIN_2 					GPIO_PIN_8
+#define SCL_PIN_2 					GPIO_PIN_6
 #define SCL_GPIO_PORT_2            GPIOE
 #define SCL_GPIO_CLK_ENABLE_2()    __GPIOE_CLK_ENABLE()
 
-#define SDA_PIN_2                  GPIO_PIN_7
+#define SDA_PIN_2                  GPIO_PIN_5
 #define SDA_GPIO_PORT_2            GPIOE              
 #define SDA_GPIO_CLK_ENABLE_2()    __GPIOE_CLK_ENABLE()
 
 //第四组
-#define SCL_PIN_3					GPIO_PIN_10
-#define SCL_GPIO_PORT_3            GPIOE
-#define SCL_GPIO_CLK_ENABLE_3()    __GPIOE_CLK_ENABLE()
+//#define SCL_PIN_3					GPIO_PIN_10
+//#define SCL_GPIO_PORT_3            GPIOE
+//#define SCL_GPIO_CLK_ENABLE_3()    __GPIOE_CLK_ENABLE()
 
-#define SDA_PIN_3                  GPIO_PIN_9
-#define SDA_GPIO_PORT_3            GPIOE              
-#define SDA_GPIO_CLK_ENABLE_3()    __GPIOE_CLK_ENABLE()
+//#define SDA_PIN_3                  GPIO_PIN_9
+//#define SDA_GPIO_PORT_3            GPIOE              
+//#define SDA_GPIO_CLK_ENABLE_3()    __GPIOE_CLK_ENABLE()
 
 
 //IIC协议引脚组数
-#define IIC_NUM  	4
+#define IIC_NUM  	3
 //引脚名字
 enum IIC_PIN_NAME
 {

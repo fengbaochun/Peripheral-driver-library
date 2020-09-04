@@ -49,12 +49,7 @@ void IIC_pin_ary_init()
 	IIC_pin[SDA][i].GPIO_Pin	=	SDA_PIN_2;		
 		
 	i++;	
-		
-	IIC_pin[SCL][i].GPIOx		=	SCL_GPIO_PORT_3;	
-	IIC_pin[SCL][i].GPIO_Pin	=	SCL_PIN_3;
-		
-	IIC_pin[SDA][i].GPIOx		=	SDA_GPIO_PORT_3;
-	IIC_pin[SDA][i].GPIO_Pin	=	SDA_PIN_3;		
+	
 
 }
 
@@ -94,8 +89,7 @@ void IIC_Init(void)
 	SCL_GPIO_CLK_ENABLE_2();
 	SDA_GPIO_CLK_ENABLE_2();
 	
-	SCL_GPIO_CLK_ENABLE_3();
-	SDA_GPIO_CLK_ENABLE_3();
+
 
 	/*********对应模式初始化************/
     GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  //推挽输出
@@ -244,7 +238,7 @@ uint8_t IIC_Read_Byte(unsigned char ack)
     return receive;
 }
 
-
+/******************************AS5600**************************************************/
 
 void AS5600_Init(void)
 {
@@ -313,3 +307,90 @@ float Get_Angle(void)
 	
 }
 
+
+/******************************MT6701**************************************************/
+
+
+//初始化IIC接口
+void MT681X_Init(void)
+{
+	IIC_Init();
+}
+//在MT6701指定地址写入一个数据
+//WriteAddr  :写入数据的目的地址    
+//DataToWrite:要写入的数据
+void MT681X_WriteOneByte(uint8_t WriteAddr,uint8_t DataToWrite)
+{				   	  	    																 
+    IIC_Start();  
+	IIC_Send_Byte((0x06<<1)+0);   //发送器件地址0X06,写数据 	 
+	IIC_Wait_Ack();	   
+    IIC_Send_Byte(WriteAddr);   //发送地址
+	IIC_Wait_Ack(); 	 										  		   
+	IIC_Send_Byte(DataToWrite);     //发送字节							   
+	IIC_Wait_Ack();  		    	   
+    IIC_Stop();//产生一个停止条件 
+	//delay_ms(10);	 
+}
+//在MT6701指定地址读出一个数据
+//ReadAddr:开始读数的地址  
+//返回值  :读到的数据
+uint8_t MT681X_ReadOneByte(uint16_t ReadAddr)
+{				  
+	uint8_t temp=0;	
+	
+    IIC_Start();  
+	IIC_Send_Byte((0x06<<1)+0);   //发送器件地址0X06,写数据 	 
+	IIC_Wait_Ack(); 
+    IIC_Send_Byte(ReadAddr);   //发送地址
+	IIC_Wait_Ack();	    
+	IIC_Start();  	 	   
+	IIC_Send_Byte((0x06<<1)+1);           //进入接收模式			   
+	IIC_Wait_Ack();	 
+    temp=IIC_Read_Byte(0);	//////master no ack	   
+    IIC_Stop();//产生一个停止条件	    
+	return temp;
+}
+
+uint8_t MT681X_Read(uint16_t ReadAddr)
+{
+	uint8_t data=0x50;
+	
+	data=MT681X_ReadOneByte(ReadAddr);
+	
+  return(data);
+}  
+
+void MT681X_Write(uint16_t WriteAddr,uint8_t data)
+{
+   MT681X_WriteOneByte(WriteAddr,data);
+} 
+
+
+
+float Get_Angle_MT(void)
+{
+	uint8_t i = 0;
+	
+	uint16_t datatemp[5]={5,6,7,8,9};
+	uint32_t temp=0;
+	uint16_t Angle = 0;
+	
+	int max_range = 4096;
+	int count = 5;
+	
+	for (i = 0; i < count; i++)
+	{
+		datatemp[0]=MT681X_Read(0x03);
+		datatemp[1]=MT681X_Read(0x04);
+		Angle = (((datatemp[0]&0x00ff)<<8)|(datatemp[1]&0x00fc))>>2;;
+		temp = temp + Angle ;
+		
+		delay_ms(2);
+	}
+	
+	//软件滤波，防止数据不稳定
+	temp = temp/count;
+	
+	return temp*max_range/16384 ;
+	
+}
